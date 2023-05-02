@@ -20,7 +20,6 @@ Responses are unified with the GraphQL API in that:
 
 Responses can also include an `error` (see [error handling documentation](/dev-docs/error-handling.md)).
 
-
 ```graphql title="Example: Response formats for queries and mutations with an example 'Article' content-type"
 type ArticleEntityResponse {
     data: ArticleEntity
@@ -52,7 +51,6 @@ We assume that the [Shadow CRUD](/dev-docs/plugins/graphql#shadow-crud) feature 
 ### Fetch a single entry
 
 Single entries can be found by their `id`.
-
 
 ```graphql title="Example query: Find the entry with id 1"
 query {
@@ -88,7 +86,7 @@ query {
           data {
             id
             attributes {
-                name
+              name
             }
           }
         }
@@ -117,7 +115,7 @@ query {
       attributes {
         dynamiczone {
           __typename
-          ...on ComponentDefaultClosingperiod {
+          ... on ComponentDefaultClosingperiod {
             label
           }
         }
@@ -135,7 +133,7 @@ Mutations in GraphQL are used to modify data (e.g. create, update, delete data).
 
 ```graphql
 mutation createArticle {
-  createArticle(data: { title: "Hello"}) {
+  createArticle(data: { title: "Hello" }) {
     data {
       id
       attributes {
@@ -151,11 +149,7 @@ The implementation of the mutations also supports relational attributes. For exa
 ```graphql
 mutation {
   createUser(
-    data: {
-      username: "John"
-      email: "john@doe.com"
-      restaurants: ["1", "2"]
-    }
+    data: { username: "John", email: "john@doe.com", restaurants: ["1", "2"] }
   ) {
     data {
       id
@@ -164,7 +158,7 @@ mutation {
         email
         restaurants {
           data {
-            id 
+            id
             attributes {
               name
               description
@@ -268,10 +262,14 @@ The following operators are available:
 | `or`           | Logical `or`                       |
 | `not`          | Logical `not`                      |
 
-
 ```graphql title="Example query with filters"
 {
-  documents(filters: { name: { eq: "test" }, or: [{ price: { gt: 10 }}, { title: { startsWith: "Book" }}] }) {
+  documents(
+    filters: {
+      name: { eq: "test" }
+      or: [{ price: { gt: 10 } }, { title: { startsWith: "Book" } }]
+    }
+  ) {
     data {
       id
     }
@@ -283,7 +281,7 @@ The following operators are available:
 
 Queries can accept a `sort` parameter with the following syntax:
 
-- to sort based on a single value: `sort: "value"` 
+- to sort based on a single value: `sort: "value"`
 - to sort based on multiple values: `sort: ["value1", "value2"]`
 
 The sorting order can be defined with `:asc` (ascending order, default, can be omitted) or `:desc` (for descending order).
@@ -374,6 +372,29 @@ Pagination methods can not be mixed. Always use either `page` with `pageSize` **
 }
 ```
 
+### Paginating repeatable components
+
+Repeatable components within a query can also accept a pagination parameter. Either the page or the offset method may be used.
+
+```graphql title="Example query: Repeatable component pagination"
+{
+  documents {
+    data {
+      attributes {
+        repeatableComponent(pagination: { limit: 20 }) {
+          id
+        }
+      }
+    }
+    meta {
+      pagination {
+        limit
+      }
+    }
+  }
+}
+```
+
 :::tip
-The default and maximum values for `pagination[limit]` can be [configured in the `./config/plugins.js`](/dev-docs/configurations/plugins#graphql-configuration) file with the `graphql.config.defaultLimit` and `graphql.config.maxLimit` keys.
+The default and maximum values for `pagination[limit]` can be [configured in the `./config/plugins.js`](/dev-docs/configurations/plugins#graphql-configuration) file with the `graphql.config.defaultLimit` and `graphql.config.maxLimit` keys. These values do not apply to repeatable components.
 :::
